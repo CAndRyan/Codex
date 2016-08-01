@@ -100,51 +100,111 @@ namespace Codex {
 
             return;
         }
-
+        
         private string RebuildText() {
-            string text = String.Empty;
+            StringBuilder text = new StringBuilder();
 
             for (int i = 0; i < Paragraphs.Count; i++) {
                 if (i != 0) {
-                    text += DefaultParagraphStart.ToString();
+                    text.Append(this.DefaultParagraphDelimiter.ToStringFromChar());
                 }
-                text += DefaultParagraphStart.ToString();
+                text.Append(this.DefaultParagraphStart.ToStringFromChar());
 
                 for (int j = 0; j < Paragraphs[i].Sentences.Length; j++) {
                     if (j != 0) {
-                        text += wDelim.ToString();
+                        text.Append(wDelim);
                     }
 
                     for (int k = 0; k < Paragraphs[i].Sentences[j].Words.Length; k++) {
                         string word = Paragraphs[i].Sentences[j].Words[k].Text;
 
                         if (k != 0) {
-                            text += wDelim.ToString() + word;
+                            text.Append(wDelim.ToString() + word);
                         }
                         else {
-                            text += word[0].ToString().ToUpper() + word.Substring(1, (word.Length - 1));
+                            text.Append(word[0].ToString().ToUpper() + word.Substring(1, (word.Length - 1)));
                         }
                     }
 
                     if (Paragraphs[i].Sentences[j].Ending == null) {
-                        text += this.DefaultSentenceEnding.ToString();
+                        text.Append(this.DefaultSentenceEnding.ToStringFromChar());
                     }
                     else {
-                        text += Paragraphs[i].Sentences[j].Ending.ToString();
+                        text.Append(Paragraphs[i].Sentences[j].Ending.ToString());
                     }
                 }
 
                 if (i < (Paragraphs.Count - 1)) {
-                    text += DefaultSentenceEnding.ToString();
+                    text.Append(this.DefaultSentenceEnding.ToStringFromChar());
                 }
             }
 
-            return text;
+            return text.ToString();
         }
         #endregion
 
         #region Public Functions
+        // Get the word count of the longest sentence (by number of words)
+        public int GetMaxWordCountOfSentences() {
+            int count = 0;
 
+            foreach (Paragraph paragraph in Paragraphs) {
+                int wCount = paragraph.GetLongestSentenceLength();
+                if (wCount > count) {
+                    count = wCount;
+                }
+            }
+
+            return count;
+        }
+
+        // Get the total word count
+        public int GetTotalWordCount() {
+            int count = 0;
+
+            foreach (Paragraph paragraph in Paragraphs) {
+                count += paragraph.WordCount;
+            }
+
+            return count;
+        }
+
+        // Get the longest word length
+        public int GetMaxWordLength() {
+            int count = 0;
+
+            foreach (Paragraph paragraph in Paragraphs) {
+                int max = paragraph.GetLongestWordLength();
+                if (max > count) {
+                    count = max;
+                }
+            }
+
+            return count;
+        }
+
+        // Get longest words
+        public List<Word> GetLongestWords() {
+            int count = GetMaxWordLength();
+            List<Word> retWords = new List<Word>();
+
+            foreach (Paragraph paragraph in Paragraphs) {
+                if (paragraph.GetLongestWordLength() == count) {
+                    retWords.AddRange(paragraph.GetLongestWords());
+                }
+            }
+
+            return retWords;
+        }
+        public List<string> GetLongestWords(bool textOnly) {
+            List<string> retWords = new List<string>();
+
+            foreach (Word word in GetLongestWords()) {
+                retWords.Add(word.Text);
+            }
+
+            return retWords;
+        }
         #endregion
     }
 }
