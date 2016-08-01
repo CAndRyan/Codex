@@ -5,6 +5,26 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Codex {
+    public static class Constants {
+        public static readonly List<char> sDelims = new List<char>(new char[] {
+            '.',
+            '?',
+            '!'
+        });
+
+        public static readonly char wDelim = ' ';
+
+        public static readonly List<char> vowels = new List<char>(new char[] {
+            'a',
+            'e',
+            'i',
+            'o',
+            'u'
+        });
+
+        public static readonly char yVowel = 'y';
+    }
+
     public enum SoundType {
         unknown,
         vowel,
@@ -26,7 +46,7 @@ namespace Codex {
 
     public class Letter {
         public char Character { get; }
-        private SoundType _Type;
+        public SoundType _Type { get; set; }
         public string Type {
             get {
                 return Enum.GetName(typeof(SoundType), _Type);
@@ -35,7 +55,16 @@ namespace Codex {
 
         public Letter(char character) {
             this.Character = character;
-            this._Type = SoundType.unknown;
+
+            if (Constants.vowels.Contains<char>(character)) {
+                this._Type = SoundType.vowel;
+            }
+            else if (character != Constants.yVowel) {
+                this._Type = SoundType.consonant;
+            }
+            else {
+                this._Type = SoundType.unknown;
+            }
         }
     }
 
@@ -71,6 +100,30 @@ namespace Codex {
         }
 
         public Word(Letter[] letters) {
+            // Update any letters if necessary - fixme - update with proper rules for determining the usage of 'y'
+            int vowelCount = 0;
+            List<int> indices = new List<int>();
+            for (int i = 0; i < letters.Length; i++) {
+                if (letters[i]._Type == SoundType.vowel) {
+                    vowelCount++;
+                }
+                else if (letters[i]._Type == SoundType.unknown) {
+                    indices.Add(i);
+                }
+            }
+            if (indices.Count > 0) {
+                if (vowelCount == 0) {
+                    letters[indices.Count - 1]._Type = SoundType.vowel;
+                }
+                else {
+                    letters[indices.Count - 1]._Type = SoundType.consonant;
+                }
+
+                for (int i = 0; i < (indices.Count - 1); i++) {
+                    letters[i]._Type = SoundType.consonant;
+                }
+            }
+
             this.Letters = letters;
             this._Class = WordClass.unknown;
         }
@@ -81,7 +134,7 @@ namespace Codex {
         private char _Ending;
         public char? Ending {
             get {
-                if (_Ending == '\0') {
+                if (_Ending == Char.MinValue) {
                     return null;
                 }
                 else {

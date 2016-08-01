@@ -49,17 +49,7 @@ namespace Codex {
             ParseText();
         }
         #endregion
-
-        #region Readonly Properties
-        readonly List<char> sDelims = new List<char>(new char[] {
-            '.',
-            '?',
-            '!'
-        });
-
-        readonly char wDelim = ' ';
-        #endregion
-
+        
         #region Internal Functions
         private void ParseText() {
             List<Word> words = new List<Word>();
@@ -67,13 +57,13 @@ namespace Codex {
 
             List<Letter> word = new List<Letter>();
             for (int i = 0; i < Input.Length; i++) {
-                if (Input[i] == wDelim) {
+                if (Input[i] == Constants.wDelim) {
                     if (word.Count > 0) {
                         words.Add(new Word(word.ToArray<Letter>()));
                         word = new List<Letter>();
                     }
                 }
-                else if (sDelims.Contains<char>(Input[i])) {
+                else if (Constants.sDelims.Contains<char>(Input[i])) {
                     if (word.Count > 0) {
                         words.Add(new Word(word.ToArray<Letter>()));
                         word = new List<Letter>();
@@ -112,14 +102,14 @@ namespace Codex {
 
                 for (int j = 0; j < Paragraphs[i].Sentences.Length; j++) {
                     if (j != 0) {
-                        text.Append(wDelim);
+                        text.Append(Constants.wDelim);
                     }
 
                     for (int k = 0; k < Paragraphs[i].Sentences[j].Words.Length; k++) {
                         string word = Paragraphs[i].Sentences[j].Words[k].Text;
 
                         if (k != 0) {
-                            text.Append(wDelim.ToString() + word);
+                            text.Append(Constants.wDelim.ToString() + word);
                         }
                         else {
                             text.Append(word[0].ToString().ToUpper() + word.Substring(1, (word.Length - 1)));
